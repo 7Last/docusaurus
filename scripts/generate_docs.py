@@ -1,10 +1,11 @@
-import glob, re, os, shutil
+import glob, re, os, shutil, string
 from py_markdown_table.markdown_table import markdown_table
 
 submodule_path = '../docs_submodule'
 docs_path = '../docs'
 metadata_file = 'variables.tex'
 category_template = 'category_template.json'
+glossary_tex = '2_RTB/glossario/glossario.tex'
 
 folders = [
     # pairs of folders in the submodule and the corresponding name of the folder in the docs
@@ -45,6 +46,8 @@ def main():
                 basename = os.path.basename(document_path)
                 f.write(create_md_file_content(basename, version, authors, latest_modification))
 
+    # update_glossary()
+
 
 def cleanup_non_json(docs_folder):
     # remove anything in docs_path/docs_folder that is not json
@@ -57,15 +60,15 @@ def cleanup_non_json(docs_folder):
             os.remove(file)
 
 
-def parse_tex(tex_path) -> tuple[str, str, set[str], str]:
+def parse_tex(tex_path) -> tuple[str, str, set[str] or None, str or None]:
     # # in the same dir as variables.tex, get the only pdf file
     tex_content = open(tex_path, 'r').read()
     title = extract_tex_tag('Title', tex_content)
     version = extract_tex_tag('Version', tex_content)
     main_pdf = glob.glob(f'{os.path.dirname(tex_path)}/*.pdf')
     if not main_pdf:
-        print(f'Main pdf found in {os.path.dirname(variables_tex)}')
-        return title, version, None
+        print(f'Main pdf found in {os.path.dirname(tex_path)}')
+        return title, version, None, None
 
     main_tex_content = open(main_pdf[0].replace('.pdf', '.tex')).read()
     table_data = extract_tex_table(main_tex_content)
@@ -119,10 +122,25 @@ def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
     rows = re.findall(r'\d+\.\d+\s*&\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*&\s*(\w+\s+\w+)', table.group(1))
     if not rows:
         return None
-    # set initializer
+
     authors = set([row[1] for row in rows])
+    # sort the authors by last name
+    authors = sorted(authors)
     latest_modification = rows[0][0]
     return authors, latest_modification
+
+def update_glossary():
+    glossary_path = f'{submodule_path}/{glossary_tex}'
+    # rows = re.findall(r'\\paragraph{(.*)}(.*)', open(glossary_path, 'r').read(), re.DOTALL)
+
+
+    # multiline match paragraph until the next \paragraph or '\newpage is found
+    rows = re.findall(r'\\paragraph{(.*)}((?:(?!\\paragraph|\\newpage).)*)', open(glossary_path, 'r').read(), re.DOTALL)
+    glossary = { letter: [] for letter in string.ascii_uppercase }
+    for row in rows:
+        glossary[row[0][0].upper()].append(row)
+    print(glossary)
+
 
 
 if __name__ == '__main__':
