@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="eee3841b-13d3-45f4-9d60-9b6225d90c9f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.gitmodules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/congratulations.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/create-a-blog-post.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/create-a-document.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/create-a-page.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/deploy-your-site.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/candidatura/markdown-features.mdx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/congratulations.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/create-a-blog-post.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/create-a-document.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/deploy-your-site.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/glossary.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/rtb/markdown-features.mdx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docusaurus.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../docusaurus.config.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="2eMynN4GUwxQLSrGZQiSu329IGN" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/elenaferro/Documents/Projects/docusaurus/scripts",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-09665e90c3a7-b11f5e8da5ad-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.15026.15" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="eee3841b-13d3-45f4-9d60-9b6225d90c9f" name="Changes" comment="" />
+      <created>1711728909366</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1711728909366</updated>
+      <workItem from="1711728911048" duration="18000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
