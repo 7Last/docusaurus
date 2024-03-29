@@ -1,4 +1,5 @@
 # Dependencies
+./idea/*
 /node_modules
 
 # Production

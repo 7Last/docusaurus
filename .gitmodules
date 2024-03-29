@@ -1,0 +1,4 @@
+[submodule "docs_submodule"]
+	path = docs_submodule
+	url = https://github.com/7Last/docs
+	branch = develop
