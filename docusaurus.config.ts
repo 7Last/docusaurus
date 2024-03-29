@@ -11,12 +11,14 @@ const config: Config = {
     url: 'https://7last.github.io',
     // Set the /<baseUrl>/ pathname under which your site is served
     // For GitHub pages deployment, it is often '/<projectName>/'
-    baseUrl: '/',
+    baseUrl: '/docusaurus',
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
     organizationName: '7Last', // Usually your GitHub org/user name.
-    projectName: 'docs', // Usually your repo name.
+    projectName: 'docusaurus', // Usually your repo name.
+    deploymentBranch: 'gh-pages',
+    trailingSlash: false,
 
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
