@@ -39,7 +39,9 @@ def main():
             dirname = os.path.dirname(document_path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname, exist_ok=True)
-                create_category_template(label=title, description=title, path=dirname)
+                # get the last dirname
+                folder_title = os.path.basename(os.path.dirname(document_path)).replace('-', ' ').title()
+                create_category_template(label=folder_title, description=folder_title, path=dirname)
 
             os.makedirs(os.path.dirname(document_path), exist_ok=True)  # create the folder if it doesn't exist
             with open(document_path, 'w') as f:
@@ -98,21 +100,23 @@ def create_md_file_content(title: str, version: str, authors: set[str], latest_m
     title = re.sub(r'(\d{2})-(\d{2})-(\d{2})', r'\3/\2/\1', title).replace('-', ' ').replace('.md', '')
 
     data = {}
-    if version:
-        data['Versione'] = version
-
     if authors:
         data['Autori'] = ', '.join(list(authors))
 
     if latest_modification:
         data['Ultima modifica'] = latest_modification
 
+    md = f'# {title.title()}\n\n'
+
+    if version:
+        md += f'## {version}'
+
     # if data is empty, return only the title
     if not data:
-        return f'# {title.title()}'
+        return md
     table = markdown_table([data]).set_params(row_sep = 'markdown', quote = False).get_markdown()
 
-    return f'''# {title.title()}\n\n{table}'''
+    return f'{md}\n\n{table}'
 
 
 def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
