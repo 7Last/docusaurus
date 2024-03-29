@@ -6,6 +6,7 @@ docs_path = '../docs'
 metadata_file = 'variables.tex'
 category_template = 'category_template.json'
 glossary_tex = '2_RTB/glossario/glossario.tex'
+glossary_md = f'{docs_path}/rtb/glossario.md'
 
 folders = [
     # pairs of folders in the submodule and the corresponding name of the folder in the docs
@@ -46,8 +47,8 @@ def main():
                 basename = os.path.basename(document_path)
                 f.write(create_md_file_content(basename, version, authors, latest_modification))
 
-    # update_glossary()
-
+    glossary = parse_glossary()
+    write_glossary(glossary)
 
 def cleanup_non_json(docs_folder):
     # remove anything in docs_path/docs_folder that is not json
@@ -129,19 +130,31 @@ def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
     latest_modification = rows[0][0]
     return authors, latest_modification
 
-def update_glossary():
+def parse_glossary():
     glossary_path = f'{submodule_path}/{glossary_tex}'
-    # rows = re.findall(r'\\paragraph{(.*)}(.*)', open(glossary_path, 'r').read(), re.DOTALL)
+    file = open(glossary_path, 'r').read()
+    file = re.sub(r'[\n\t\r]', '', file)
+    rows = re.findall(r'\\glossdef{(.*?)}{(.*?)}', file, re.MULTILINE)
 
+    glossary = {}
+    for word, definition in rows:
+        first_letter = word[0].upper()
+        if first_letter not in string.ascii_uppercase:
+            first_letter = '#'
+        if first_letter not in glossary:
+            glossary[first_letter] = []
+        glossary[first_letter].append((word, definition))
 
-    # multiline match paragraph until the next \paragraph or '\newpage is found
-    rows = re.findall(r'\\paragraph{(.*)}((?:(?!\\paragraph|\\newpage).)*)', open(glossary_path, 'r').read(), re.DOTALL)
-    glossary = { letter: [] for letter in string.ascii_uppercase }
-    for row in rows:
-        glossary[row[0][0].upper()].append(row)
-    print(glossary)
+    return glossary
 
-
+def write_glossary(glossary):
+    # append the glossary to the glossary.md file
+    with open(glossary_md, 'w') as f:
+        f.write('# Glossario\n\n')
+        for letter, entries in glossary.items():
+            f.write(f'## {letter}\n\n')
+            for entry in entries:
+                f.write(f'### {entry[0]}\n\n{entry[1]}\n\n')
 
 if __name__ == '__main__':
     main()
