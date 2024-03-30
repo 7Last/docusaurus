@@ -1,12 +1,21 @@
-import glob, re, os, shutil, string
+import glob
+import os
+import re
+import shutil
+import string
 from py_markdown_table.markdown_table import markdown_table
 
-submodule_path = '../docs_submodule'
-docs_path = '../docs'
+submodule_path = './docs_submodule'
+docs_path = './docs'
 metadata_file = 'variables.tex'
-category_template = 'category_template.json'
+category_template = './scripts/category_template.json'
 glossary_tex = '2_RTB/glossario/glossario.tex'
-glossary_md = f'{docs_path}/rtb/glossario.md'
+glossary_mdx = f'{docs_path}/rtb/glossario.mdx'
+version_chip_import = 'import Chip from \'@mui/material/Chip\';'
+version_chip = '<Chip label={{version}} sx={{margin: 1, backgroundColor: \'var(--ifm-color-primary)\', color: \'#000\'}}/>'
+github_icon_import = 'import Button from \'@mui/material/Button\';\nimport GithubIcon from \'@mui/icons-material/GitHub\'';
+github_button = '<Button variant="outlined" sx={{backgroundColor: \'black\'}} startIcon={<GithubIcon />} href={{href}}>Scarica da Github</Button>'
+raw_content_url = 'https://raw.githubusercontent.com/7Last/docs/main'
 
 folders = [
     # pairs of folders in the submodule and the corresponding name of the folder in the docs
@@ -27,12 +36,11 @@ def main():
 
             title, version, authors, latest_modification = tex
 
+            repo_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.pdf', variables_tex).replace(submodule_path, docs_path)
+
             # from var_file, with regex, remove the folder before the variables.tex file and replace the extension
-
-            document_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.md',
-                                   variables_tex.replace(f'{submodule_path}/{submod_folder}',
-                                                         f'{docs_path}/{docs_folder}'))
-
+            document_path = variables_tex.replace(f'{submodule_path}/{submod_folder}', f'{docs_path}/{docs_folder}')
+            document_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.mdx', document_path)
             document_path = document_path.replace('_', '-')
             document_path = re.sub(r'-v\d+\.\d+', '', document_path)  # replace version
 
@@ -45,9 +53,17 @@ def main():
 
             os.makedirs(os.path.dirname(document_path), exist_ok=True)  # create the folder if it doesn't exist
             with open(document_path, 'w') as f:
-                print(f'Writing {document_path}')
+                # print(f'Writing {document_path}')
                 basename = os.path.basename(document_path)
-                f.write(create_md_file_content(basename, version, authors, latest_modification))
+                print(repo_path)
+                content = create_mdx_file_content(
+                    basename,
+                    version,
+                    authors,
+                    latest_modification,
+                    repo_path.replace(f'{docs_path}/', '')
+                )
+                f.write(content)
 
     glossary = parse_glossary()
     write_glossary(glossary)
@@ -96,8 +112,8 @@ def create_category_template(label, description, path) -> None:
     open(f'{path}/_category_.json', 'w').write(template)
 
 
-def create_md_file_content(title: str, version: str, authors: set[str], latest_modification: str) -> str:
-    title = re.sub(r'(\d{2})-(\d{2})-(\d{2})', r'\3/\2/\1', title).replace('-', ' ').replace('.md', '')
+def create_mdx_file_content(title: str, version: str, authors: set[str], latest_modification: str, repo_path: str) -> str:
+    title = re.sub(r'(\d{2})-(\d{2})-(\d{2})', r'\3/\2/\1', title).replace('-', ' ').replace('.mdx', '')
 
     data = {}
     if authors:
@@ -106,17 +122,22 @@ def create_md_file_content(title: str, version: str, authors: set[str], latest_m
     if latest_modification:
         data['Ultima modifica'] = latest_modification
 
-    md = f'# {title.title()}\n\n'
+    title = title.title()
 
     if version:
-        md += f'## {version}'
+        version_quote = f'"{version}"'
+        mdx = f'{github_icon_import}\n\n{version_chip_import}\n\n# {title}\n\n{version_chip.replace("{version}", version_quote)}\n\n'
+    else:
+        mdx = f'{github_icon_import}\n\n# {title.title()}\n\n'
 
+    href = f'"{raw_content_url}/{repo_path}"'
+    button = github_button.replace("{href}", href)
     # if data is empty, return only the title
     if not data:
-        return md
+        return f'{mdx}{button}'
     table = markdown_table([data]).set_params(row_sep = 'markdown', quote = False).get_markdown()
 
-    return f'{md}\n\n{table}'
+    return f'{mdx}\n\n{table}\n\n{button}'
 
 
 def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
@@ -152,9 +173,9 @@ def parse_glossary():
     return glossary
 
 def write_glossary(glossary):
-    # append the glossary to the glossary.md file
-    with open(glossary_md, 'w') as f:
-        f.write('# Glossario\n\n')
+    # append the glossary to the glossary.mdx file
+    with open(glossary_mdx, 'a+') as f:
+        f.write('\n\n')
         for letter, entries in glossary.items():
             f.write(f'## {letter}\n\n')
             for entry in entries:

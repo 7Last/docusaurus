@@ -1,2 +1,0 @@
-# Lettera Di Presentazione
-
