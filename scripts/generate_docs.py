@@ -55,7 +55,6 @@ def main():
             with open(document_path, 'w') as f:
                 print(f'Writing {document_path}')
                 basename = os.path.basename(document_path)
-                print(repo_path)
                 content = create_mdx_file_content(
                     basename,
                     version,
