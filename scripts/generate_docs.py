@@ -53,7 +53,7 @@ def main():
 
             os.makedirs(os.path.dirname(document_path), exist_ok=True)  # create the folder if it doesn't exist
             with open(document_path, 'w') as f:
-                # print(f'Writing {document_path}')
+                print(f'Writing {document_path}')
                 basename = os.path.basename(document_path)
                 print(repo_path)
                 content = create_mdx_file_content(
