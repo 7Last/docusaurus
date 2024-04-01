@@ -65,8 +65,10 @@ def main():
                 )
                 f.write(content)
 
-    glossary = parse_glossary()
-    write_glossary(glossary)
+    # if glossary exists, parse it and write it to the glossary.mdx file
+    if os.path.exists(f'{submodule_path}/{glossary_tex}'):
+        glossary = parse_glossary()
+        write_glossary(glossary)
 
 def cleanup_non_json(docs_folder):
     # remove anything in docs_path/docs_folder that is not json
