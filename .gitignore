@@ -1,5 +1,5 @@
 # Dependencies
-./idea/*
+./idea/**
 /node_modules
 
 # Production
