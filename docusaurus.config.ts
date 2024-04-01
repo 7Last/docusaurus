@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
     title: '7Last',
-    tagline: 'Documentazione progetto SWE 2023/24',
+    tagline: 'Ingegneria del Software, A.A. 2023/2024',
     favicon: 'img/favicon.ico',
 
     // Set the production url of your site here
