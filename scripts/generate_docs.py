@@ -9,8 +9,8 @@ submodule_path = './docs_submodule'
 docs_path = './docs'
 metadata_file = 'variables.tex'
 category_template = './scripts/category_template.json'
-glossary_tex = '2_RTB/glossario/glossario.tex'
-glossary_mdx = f'{docs_path}/rtb/glossario.mdx'
+glossary_tex = '2_RTB/documentazione_interna/glossario/glossario.tex'
+glossary_mdx = f'{docs_path}/rtb/documentazione-interna/glossario.mdx'
 version_chip_import = 'import Chip from \'@mui/material/Chip\';'
 version_chip = '<Chip label={{version}} sx={{margin: 1, backgroundColor: \'var(--ifm-color-primary)\', color: \'#000\'}}/>'
 github_icon_import = 'import Button from \'@mui/material/Button\';\nimport GithubIcon from \'@mui/icons-material/GitHub\'';
@@ -160,10 +160,12 @@ def parse_glossary():
     glossary_path = f'{submodule_path}/{glossary_tex}'
     file = open(glossary_path, 'r').read()
     file = re.sub(r'[\n\t\r]', '', file)
-    rows = re.findall(r'\\glossdef{(.*?)}{(.*?)}', file, re.MULTILINE)
+
+    pattern = r"\\newglossaryentry{([^{}]+)}\s*{\s*name={?[^,}]+}?,\s*description={([^{}]+)}"
+    matches = re.findall(pattern, file)
 
     glossary = {}
-    for word, definition in rows:
+    for word, definition in matches:
         first_letter = word[0].upper()
         if first_letter not in string.ascii_uppercase:
             first_letter = '#'
