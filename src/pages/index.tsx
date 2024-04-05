@@ -4,8 +4,8 @@ import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
 import styles from './index.module.css';
-import {createTheme, Stack, ThemeProvider, Button, Box} from "@mui/material";
-import {ArrowForward} from "@mui/icons-material";
+import {createTheme, ThemeProvider, Grid, Button} from "@mui/material";
+import {ArrowForward, GitHub} from "@mui/icons-material";
 
 
 const theme = createTheme({
@@ -37,23 +37,46 @@ export default function Home(): JSX.Element {
             <Layout
                 title={siteConfig.title}>
                 <HomepageHeader/>
-                <Stack spacing={5}
-                       sx={{ sm: {padding: '0.5em'}, md: {padding: '2em'}}}
-                       justifyContent="center"
-                       alignItems="center"
-                       direction={{ xs: 'column', md: 'row' }}>
 
-                    <Box sx={{ maxWidth: '40%' , fontSize: '1.5em', py: 5}}>
-                        Sito contenente la documentazione per il corso di Ingegneria del
+                <Grid container spacing={5} p={5} justifyContent="center" alignItems="center"
+                      direction={{xs: 'column', md: 'row'}}>
+                    <Grid item xs={6} sx={{fontSize: '1.5em'}}>
+                        Sito contenente la documentazione prodotta per il corso di Ingegneria del
                         Software, A.A. 2023/2024 presso l'Università degli Studi di Padova.
-                    </Box>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Button variant="outlined" href={'/docs/intro'}
+                                sx={{backgroundColor: 'var(--ifm-color-primary)', color: '#000'}}>
+                            <span>Introduzione</span>
+                            <ArrowForward/>
+                        </Button>
+                    </Grid>
 
-                    <Button variant="outlined" href={'/docs/intro'}
-                            sx={{backgroundColor: 'var(--ifm-color-primary)', color: '#000'}}>
-                        <span>Introduzione</span>
-                        <ArrowForward/>
-                    </Button>
-                </Stack>
+                    <Grid container spacing={3} p={5} m={2} justifyContent={'center'} alignItems={'center'}
+                            direction={{xs: 'column', md: 'row'}}>
+                        <Grid item xs={4}>
+                            <Heading as={'h2'}>Proof of Concept</Heading>
+                            <p>
+                                Realizzazione di un prototipo di un sistema che simula dati provenienti da sensori IoT,
+                                li pubblica in una coda Kafka, salva su Clickhouse DB e mostra in una dashboard Grafana.
+                            </p>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                            <Button variant="outlined"
+                                    sx={{
+                                        color: 'var(--ifm-color-primary)',
+                                        border: '2px solid var(--ifm-color-primary)',
+                                        padding: 3,
+                                    }}
+                                    href={'https://github.com/7Last/PoC/'}
+                                    startIcon={<GitHub/>}
+                                    endIcon={<ArrowForward/>}>
+                                Repository
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Layout>
         </ThemeProvider>
     );
