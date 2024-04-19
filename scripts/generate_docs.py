@@ -69,6 +69,7 @@ def main():
         glossary = parse_glossary()
         write_glossary(glossary)
 
+
 def cleanup_non_json(docs_folder):
     # remove anything in docs_path/docs_folder that is not json
     for file in glob.glob(f'{docs_path}/{docs_folder}/**'):
@@ -113,8 +114,21 @@ def create_category_template(label, description, path) -> None:
     open(f'{path}/_category_.json', 'w').write(template)
 
 
-def create_mdx_file_content(title: str, version: str, authors: set[str], latest_modification: str, repo_path: str) -> str:
-    title = re.sub(r'(\d{2})-(\d{2})-(\d{2})', r'\3/\2/\1', title).replace('-', ' ').replace('.mdx', '')
+def create_mdx_file_content(title: str, version: str, authors: set[str], latest_modification: str,
+                            repo_path: str) -> str:
+    if re.search(r'\d{2}_\d{2}_\d{2}', title):  # yy-mm-dd date
+        # old format
+        title = re.sub(r'(\d{2})_(\d{2})_(\d{2})', r'\3-\2-\1', title) \
+            .replace('_', ' ') \
+            .replace('-', ' ')
+    elif re.search(r'\d{4}-\d{2}-\d{2}', title):  # yyyy-mm-dd date
+        # new format
+        title = title.replace('-', ' ')
+        title = re.sub(r'(\d{4}) (\d{2}) (\d{2})', r'\1-\2-\3', title)
+    else:
+        title = title.replace('_', ' ').replace('-', ' ')
+
+    title = title.replace('.mdx', '')
 
     data = {}
     if authors:
@@ -136,7 +150,7 @@ def create_mdx_file_content(title: str, version: str, authors: set[str], latest_
     # if data is empty, return only the title
     if not data:
         return f'{mdx}{button}'
-    table = markdown_table([data]).set_params(row_sep = 'markdown', quote = False).get_markdown()
+    table = markdown_table([data]).set_params(row_sep='markdown', quote=False).get_markdown()
 
     return f'{mdx}\n\n{table}\n\n{button}'
 
@@ -146,15 +160,23 @@ def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
     if not table:
         return None
 
-    rows = re.findall(r'\d+\.\d+\s*&\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*&\s*(\w+\s+\w+)', table.group(1))
+    # new table format
+    rows = re.findall(r'\d+\.\d+\s*&\s*(\d{4}-\d{2}-\d{2})\s*&\s*(\w+\s+\w+)\s*&\s*(\w+\s+\w+)', table.group(1))
+    latest_modification = rows[0][0] if rows else None
+
+    if not rows:
+        # old table format
+        rows = re.findall(r'\d+\.\d+\s*&\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*&\s*(\w+\s+\w+)', table.group(1))
+        latest_modification = re.sub(r'(\d{1,2})\/(\d{1,2})\/(\d{4})', r'\3-\2-\1', rows[0][0]) if rows else None
+
     if not rows:
         return None
 
     authors = set([row[1] for row in rows])
     # sort the authors by last name
     authors = sorted(authors)
-    latest_modification = rows[0][0]
     return authors, latest_modification
+
 
 def parse_glossary():
     glossary_path = f'{submodule_path}/{glossary_tex}'
@@ -175,6 +197,7 @@ def parse_glossary():
 
     return glossary
 
+
 def write_glossary(glossary):
     # append the glossary to the glossary.mdx file
     with open(glossary_mdx, 'a+') as f:
@@ -183,6 +206,7 @@ def write_glossary(glossary):
             f.write(f'## {letter}\n\n')
             for entry in entries:
                 f.write(f'### {entry[0]}\n\n{entry[1]}\n\n')
+
 
 if __name__ == '__main__':
     main()
