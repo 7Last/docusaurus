@@ -36,7 +36,7 @@ def main():
 
             title, version, authors, latest_modification = tex
 
-            repo_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.pdf', variables_tex).replace(submodule_path, docs_path)
+            repo_path = re.sub(rf'/(.*)/{metadata_file}', rf'/\1_{version}.pdf', variables_tex).replace(submodule_path, docs_path)
 
             # from var_file, with regex, remove the folder before the variables.tex file and replace the extension
             document_path = variables_tex.replace(f'{submodule_path}/{submod_folder}', f'{docs_path}/{docs_folder}')
