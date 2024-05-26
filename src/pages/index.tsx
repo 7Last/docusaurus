@@ -58,7 +58,7 @@ export default function Home(): JSX.Element {
                             <Heading as={'h2'}>Proof of Concept</Heading>
                             <p>
                                 Realizzazione di un prototipo di un sistema che simula dati provenienti da sensori IoT,
-                                li pubblica in una coda Kafka, salva su Clickhouse DB e mostra in una dashboard Grafana.
+                                li pubblica in una coda Redpanda, li salva su Clickhouse DB e li mostra in una dashboard Grafana.
                             </p>
                         </Grid>
 
