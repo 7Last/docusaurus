@@ -34,6 +34,8 @@ folders = [
 
 
 def main():
+    docs_by_revision = {}
+
     for (submod_folder, docs_folder) in folders:
         cleanup_non_json(docs_folder)
 
@@ -74,8 +76,11 @@ def main():
             with open(document_path, 'w') as f:
                 print(f'Writing {document_path}')
                 basename = os.path.basename(document_path)
+                title = title_from_basename(basename)
+                docs_by_revision.setdefault(docs_folder, []).append(
+                    (document_path, title))
                 content = create_mdx_file_content(
-                    basename,
+                    title,
                     version,
                     authors,
                     latest_modification,
@@ -89,6 +94,9 @@ def main():
             glossary = parse_glossary(f'{submodule_path}/{glossary_tex}')
             revision = 'rtb' if 'RTB' in glossary_tex else 'pb'
             write_glossary(glossary, revision)
+
+    for revision, docs in docs_by_revision.items():
+        generate_index(revision, docs)
 
 
 def cleanup_non_json(docs_folder):
@@ -135,23 +143,26 @@ def create_category_template(label, description, path) -> None:
     open(f'{path}/_category_.json', 'w').write(template)
 
 
+def title_from_basename(basename: str):
+    if re.search(r'\d{2}_\d{2}_\d{2}', basename):  # yy-mm-dd date
+        # old format
+        basename = re.sub(r'(\d{2})_(\d{2})_(\d{2})', r'\3-\2-\1', basename) \
+            .replace('_', ' ') \
+            .replace('-', ' ')
+    elif re.search(r'\d{4}-\d{2}-\d{2}', basename):  # yyyy-mm-dd date
+        # new format
+        basename = basename.replace('-', ' ')
+        basename = re.sub(r'(\d{4}) (\d{2}) (\d{2})', r'\1-\2-\3', basename)
+    else:
+        basename = basename.replace('_', ' ').replace('-', ' ')
+
+    basename = basename.replace('.mdx', '')
+    return basename.title()
+
+
 def create_mdx_file_content(title: str, version: str, authors: set[str],
                             latest_modification: str,
                             repo_path: str) -> str:
-    if re.search(r'\d{2}_\d{2}_\d{2}', title):  # yy-mm-dd date
-        # old format
-        title = re.sub(r'(\d{2})_(\d{2})_(\d{2})', r'\3-\2-\1', title) \
-            .replace('_', ' ') \
-            .replace('-', ' ')
-    elif re.search(r'\d{4}-\d{2}-\d{2}', title):  # yyyy-mm-dd date
-        # new format
-        title = title.replace('-', ' ')
-        title = re.sub(r'(\d{4}) (\d{2}) (\d{2})', r'\1-\2-\3', title)
-    else:
-        title = title.replace('_', ' ').replace('-', ' ')
-
-    title = title.replace('.mdx', '')
-
     data = {}
     if authors:
         data['Autori'] = ', '.join(list(authors))
@@ -251,6 +262,43 @@ def add_doc_link(word, revision):
         link = f'/docs/{revision}{documents[word]}'
         word = f'[{word}]({link})'
     return word
+
+
+def generate_index(revision, docs):
+    # docs contains a list of tuples (path, title)
+    index = f'# Indice\n\n'
+    # add letter
+    index += f'- [Lettera di presentazione]({revision}/lettera-di-presentazione)\n'
+
+    docs_by_type = {}  # root, internal, external
+    for path, title in docs:
+        path = path.replace('.', '').replace('mdx', '')
+        if 'Lettera' in title:
+            continue
+        root_document = (path.count('/') == 3 and revision == 'candidatura') or (
+                    path.count('/') == 4 and revision != 'candidatura' and not 'verbali' in path)
+        if root_document:
+            docs_by_type.setdefault('root', []).append((path, title))
+        elif 'verbali-interni' in path:
+            docs_by_type.setdefault('internal', []).append((path, title))
+        else:
+            docs_by_type.setdefault('external', []).append((path, title))
+
+    index += '\n## Documenti\n\n'
+    for docs in sorted(docs_by_type.get('root', [])):
+        index += f'- [{docs[1]}]({docs[0]})\n'
+
+    index += '\n## Verbali Interni\n\n'
+    for docs in sorted(docs_by_type.get('internal', [])):
+        index += f'\t- [{docs[1]}]({docs[0]})\n'
+
+    index += '\n## Verbali Esterni\n\n'
+    for docs in sorted(docs_by_type.get('external', [])):
+        index += f'\t- [{docs[1]}]({docs[0]})\n'
+
+    index_file = f'{docs_path}/{revision}/index.mdx'
+    with open(index_file, 'w') as f:
+        f.write(index)
 
 
 if __name__ == '__main__':
