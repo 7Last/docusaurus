@@ -10,8 +10,14 @@ submodule_path = './docs_submodule'
 docs_path = './docs'
 metadata_file = 'variables.tex'
 category_template = './scripts/category_template.json'
-glossary_tex = '2_RTB/documentazione_interna/glossario/glossario.tex'
-glossary_mdx = f'{docs_path}/rtb/documentazione-interna/glossario.mdx'
+glossaries_tex = [
+    '2_RTB/documentazione_interna/glossario/glossario.tex',
+    '3_PB/documentazione_interna/glossario/glossario.tex'
+]
+glossaries_mdx = [
+    f'{docs_path}/rtb/documentazione-interna/glossario.mdx',
+    f'{docs_path}/pb/documentazione-interna/glossario.mdx'
+]
 tag_import = 'import Tag from "@theme/Tag";'
 tag = 'Versione: <Tag label={{version}} />'
 github_icon_import = 'import Button from \'@mui/material/Button\';\nimport GithubIcon from \'@mui/icons-material/GitHub\'';
@@ -78,9 +84,11 @@ def main():
                 f.write(content)
 
     # if glossary exists, parse it and write it to the glossary.mdx file
-    if os.path.exists(f'{submodule_path}/{glossary_tex}'):
-        glossary = parse_glossary()
-        write_glossary(glossary)
+    for glossary_tex in glossaries_tex:
+        if os.path.exists(f'{submodule_path}/{glossary_tex}'):
+            glossary = parse_glossary(f'{submodule_path}/{glossary_tex}')
+            revision = 'rtb' if 'RTB' in glossary_tex else 'pb'
+            write_glossary(glossary, revision)
 
 
 def cleanup_non_json(docs_folder):
@@ -197,8 +205,7 @@ def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
     return authors, latest_modification
 
 
-def parse_glossary():
-    glossary_path = f'{submodule_path}/{glossary_tex}'
+def parse_glossary(glossary_path):
     file = open(glossary_path, 'r').read()
     file = re.sub(r'[\n\t\r]', '', file)
 
@@ -217,14 +224,33 @@ def parse_glossary():
     return glossary
 
 
-def write_glossary(glossary):
+def write_glossary(glossary, revision):
     # append the glossary to the glossary.mdx file
-    with open(glossary_mdx, 'a+') as f:
+    file = glossaries_mdx[0] if revision == 'rtb' else glossaries_mdx[1]
+    with open(file, 'a+') as f:
         f.write('\n\n')
         for letter, entries in glossary.items():
             f.write(f'## {letter}\n\n')
-            for entry in entries:
-                f.write(f'### {entry[0]}\n\n{entry[1]}\n\n')
+            for word, definition in entries:
+                word = add_doc_link(word, revision)
+                f.write(f'### {word}\n\n{definition}\n\n')
+
+
+def add_doc_link(word, revision):
+    documents = {
+        'Analisi dei Requisiti': '/documentazione-esterna/analisi-dei-requisiti',
+        'Piano di Progetto': '/documentazione-esterna/piano-di-progetto',
+        'Piano di Qualifica': '/documentazione-esterna/piano-di-qualifica',
+        'Manuale Utente': '/documentazione-esterna/manuale-utente',
+        'Specifica Tecnica': '/documentazione-esterna/specifica-tecnica',
+        'Norme di Progetto': '/documentazione-interna/norme-di-progetto',
+    }
+
+    if word in documents:
+        # create a link to the document
+        link = f'/docs/{revision}{documents[word]}'
+        word = f'[{word}]({link})'
+    return word
 
 
 if __name__ == '__main__':
