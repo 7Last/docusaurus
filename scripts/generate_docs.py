@@ -21,7 +21,7 @@ glossaries_mdx = [
 tag_import = 'import Tag from "@theme/Tag";'
 tag = 'Versione: <Tag label={{version}} />'
 github_icon_import = 'import Button from \'@mui/material/Button\';\nimport GithubIcon from \'@mui/icons-material/GitHub\'';
-github_button = '<Button variant="outlined" sx={{backgroundColor: \'black\'}} startIcon={<GithubIcon />} href={{href}}>Scarica da Github</Button>'
+github_button = '<Button variant="outlined" sx={{backgroundColor: \'transparent\'}} startIcon={<GithubIcon />} href={{href}}>Scarica da Github</Button>'
 raw_content_url = 'https://raw.githubusercontent.com/7Last/docs/main'
 sidebar_text = "---\nsidebar_position: 0\n---"
 
