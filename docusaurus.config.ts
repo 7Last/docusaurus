@@ -66,6 +66,7 @@ const config: Config = {
                 },
             ],
         },
+        docs: { },
         footer: {
             style: 'dark',
             copyright: `Copyright © ${new Date().getFullYear()} - 7Last`,

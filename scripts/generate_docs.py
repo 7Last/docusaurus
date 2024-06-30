@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import string
+
 from py_markdown_table.markdown_table import markdown_table
 
 submodule_path = './docs_submodule'
@@ -11,16 +12,18 @@ metadata_file = 'variables.tex'
 category_template = './scripts/category_template.json'
 glossary_tex = '2_RTB/documentazione_interna/glossario/glossario.tex'
 glossary_mdx = f'{docs_path}/rtb/documentazione-interna/glossario.mdx'
-version_chip_import = 'import Chip from \'@mui/material/Chip\';'
-version_chip = '<Chip label={{version}} sx={{margin: 1, backgroundColor: \'var(--ifm-color-primary)\', color: \'#000\'}}/>'
+tag_import = 'import Tag from "@theme/Tag";'
+tag = 'Versione: <Tag label={{version}} />'
 github_icon_import = 'import Button from \'@mui/material/Button\';\nimport GithubIcon from \'@mui/icons-material/GitHub\'';
 github_button = '<Button variant="outlined" sx={{backgroundColor: \'black\'}} startIcon={<GithubIcon />} href={{href}}>Scarica da Github</Button>'
 raw_content_url = 'https://raw.githubusercontent.com/7Last/docs/main'
+sidebar_text = "---\nsidebar_position: 0\n---"
 
 folders = [
     # pairs of folders in the submodule and the corresponding name of the folder in the docs
     ('1_candidatura', 'candidatura'),
-    ('2_RTB', 'rtb')
+    ('2_RTB', 'rtb'),
+    ('3_PB', 'pb'),
 ]
 
 
@@ -28,7 +31,8 @@ def main():
     for (submod_folder, docs_folder) in folders:
         cleanup_non_json(docs_folder)
 
-        tex_variables_files = glob.glob(f'{submodule_path}/{submod_folder}/**/{metadata_file}', recursive=True)
+        tex_variables_files = glob.glob(
+            f'{submodule_path}/{submod_folder}/**/{metadata_file}', recursive=True)
         for variables_tex in tex_variables_files:
             tex = parse_tex(variables_tex)
             if not tex:
@@ -37,12 +41,15 @@ def main():
             title, version, authors, latest_modification = tex
 
             if version:
-                repo_path = re.sub(rf'/(.*)/{metadata_file}', rf'/\1_{version}.pdf', variables_tex).replace(submodule_path, docs_path)
+                repo_path = re.sub(rf'/(.*)/{metadata_file}', rf'/\1_{version}.pdf',
+                                   variables_tex).replace(submodule_path, docs_path)
             else:
-                repo_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.pdf', variables_tex).replace(submodule_path, docs_path)
+                repo_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.pdf',
+                                   variables_tex).replace(submodule_path, docs_path)
 
             # from var_file, with regex, remove the folder before the variables.tex file and replace the extension
-            document_path = variables_tex.replace(f'{submodule_path}/{submod_folder}', f'{docs_path}/{docs_folder}')
+            document_path = variables_tex.replace(f'{submodule_path}/{submod_folder}',
+                                                  f'{docs_path}/{docs_folder}')
             document_path = re.sub(rf'/(.*)/{metadata_file}', r'/\1.mdx', document_path)
             document_path = document_path.replace('_', '-')
             document_path = re.sub(r'-v\d+\.\d+', '', document_path)  # replace version
@@ -51,10 +58,13 @@ def main():
             if not os.path.exists(dirname):
                 os.makedirs(dirname, exist_ok=True)
                 # get the last dirname
-                folder_title = os.path.basename(os.path.dirname(document_path)).replace('-', ' ').title()
-                create_category_template(label=folder_title, description=folder_title, path=dirname)
+                folder_title = os.path.basename(os.path.dirname(document_path)).replace(
+                    '-', ' ').title()
+                create_category_template(label=folder_title, description=folder_title,
+                                         path=dirname)
 
-            os.makedirs(os.path.dirname(document_path), exist_ok=True)  # create the folder if it doesn't exist
+            os.makedirs(os.path.dirname(document_path),
+                        exist_ok=True)  # create the folder if it doesn't exist
             with open(document_path, 'w') as f:
                 print(f'Writing {document_path}')
                 basename = os.path.basename(document_path)
@@ -76,7 +86,7 @@ def main():
 def cleanup_non_json(docs_folder):
     # remove anything in docs_path/docs_folder that is not json
     for file in glob.glob(f'{docs_path}/{docs_folder}/**'):
-        if file.endswith('.json'):
+        if file.endswith('.json') or file.endswith('index.mdx'):
             continue
         if os.path.isdir(file):
             shutil.rmtree(file)
@@ -117,7 +127,8 @@ def create_category_template(label, description, path) -> None:
     open(f'{path}/_category_.json', 'w').write(template)
 
 
-def create_mdx_file_content(title: str, version: str, authors: set[str], latest_modification: str,
+def create_mdx_file_content(title: str, version: str, authors: set[str],
+                            latest_modification: str,
                             repo_path: str) -> str:
     if re.search(r'\d{2}_\d{2}_\d{2}', title):  # yy-mm-dd date
         # old format
@@ -144,16 +155,17 @@ def create_mdx_file_content(title: str, version: str, authors: set[str], latest_
 
     if version:
         version_quote = f'"{version}"'
-        mdx = f'{github_icon_import}\n\n{version_chip_import}\n\n# {title}\n\n{version_chip.replace("{version}", version_quote)}\n\n'
+        mdx = f'{github_icon_import}\n\n{tag_import}\n\n# {title}\n\n{tag.replace("{version}", version_quote)}\n\n'
     else:
-        mdx = f'{github_icon_import}\n\n# {title.title()}\n\n'
+        mdx = f'{sidebar_text}\n\n{github_icon_import}\n\n# {title.title()}\n\n'
 
     href = f'"{raw_content_url}/{repo_path}"'
     button = github_button.replace("{href}", href)
     # if data is empty, return only the title
     if not data:
         return f'{mdx}{button}'
-    table = markdown_table([data]).set_params(row_sep='markdown', quote=False).get_markdown()
+    table = markdown_table([data]).set_params(row_sep='markdown',
+                                              quote=False).get_markdown()
 
     return f'{mdx}\n\n{table}\n\n{button}'
 
@@ -164,13 +176,17 @@ def extract_tex_table(tex_content) -> tuple[str, set[str]] or None:
         return None
 
     # new table format
-    rows = re.findall(r'\d+\.\d+\s*&\s*(\d{4}-\d{2}-\d{2})\s*&\s*(\w+\s+\w+)\s*&\s*(\w+\s+\w+)', table.group(1))
+    rows = re.findall(
+        r'\d+\.\d+\s*&\s*(\d{4}-\d{2}-\d{2})\s*&\s*(\w+\s+\w+)\s*&\s*(\w+\s+\w+)',
+        table.group(1))
     latest_modification = rows[0][0] if rows else None
 
     if not rows:
         # old table format
-        rows = re.findall(r'\d+\.\d+\s*&\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*&\s*(\w+\s+\w+)', table.group(1))
-        latest_modification = re.sub(r'(\d{1,2})\/(\d{1,2})\/(\d{4})', r'\3-\2-\1', rows[0][0]) if rows else None
+        rows = re.findall(r'\d+\.\d+\s*&\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*&\s*(\w+\s+\w+)',
+                          table.group(1))
+        latest_modification = re.sub(r'(\d{1,2})\/(\d{1,2})\/(\d{4})', r'\3-\2-\1',
+                                     rows[0][0]) if rows else None
 
     if not rows:
         return None
